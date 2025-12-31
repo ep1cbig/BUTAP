@@ -151,30 +151,32 @@
 
         const translations = {
             es: { 
-                speechPrefix: "Atención, hoy te toca tirar ", 
-                speechNone: "Atención, hoy no se tira nada.", 
+                speechPrefix: "Atención, hoy te toca tirar: ", 
+                speechNone: "Atención, hoy no te toca tirar nada.", 
                 none: "Nada hoy",
                 si: "QUÉ TIRAR 👍",
                 no: "NO TIRAR ❌",
-                labelToday: "Calendario de Hoy"
+                labelToday: "Calendario de Hoy",
+                and: " y "
             },
             it: { 
-                speechPrefix: "Attenzione, oggi devi buttare ", 
-                speechNone: "Attenzione, oggi non si butta niente.", 
+                speechPrefix: "Attenzione, oggi devi buttare: ", 
+                speechNone: "Attenzione, oggi non devi buttare niente.", 
                 none: "Niente oggi",
                 si: "COSA BUTTARE 👍",
                 no: "NON BUTTARE ❌",
-                labelToday: "Calendario di Oggi"
+                labelToday: "Calendario di Oggi",
+                and: " e "
             }
         };
 
         const themeMap = {
-            "Organico": { class: "theme-organico", icon: "🟤", color: "#8B4513" },
-            "Carta": { class: "theme-carta", icon: "🔵", color: "#00008B" },
-            "Plastica Metalli": { class: "theme-plastica", icon: "🟡", color: "#EAB308" },
-            "Secco Residuo": { class: "theme-indifferenziato", icon: "⚪", color: "#808080" },
-            "Vetro": { class: "theme-vetro", icon: "🟢", color: "#008000" },
-            "Nada hoy": { class: "theme-none", icon: "🏠", color: "#9ca3af" }
+            "Organico": { class: "theme-organico", icon: "🟤", color: "#8B4513", voice: {es: "orgánico", it: "organico"} },
+            "Carta": { class: "theme-carta", icon: "🔵", color: "#00008B", voice: {es: "papel y cartón", it: "carta e cartone"} },
+            "Plastica Metalli": { class: "theme-plastica", icon: "🟡", color: "#EAB308", voice: {es: "plástico y metales", it: "plastica e metalli"} },
+            "Secco Residuo": { class: "theme-indifferenziato", icon: "⚪", color: "#808080", voice: {es: "indiferenciado", it: "indifferenziato"} },
+            "Vetro": { class: "theme-vetro", icon: "🟢", color: "#008000", voice: {es: "vidrio", it: "vetro"} },
+            "Nada hoy": { class: "theme-none", icon: "🏠", color: "#9ca3af", voice: {es: "nada", it: "niente"} }
         };
 
         const detailsData = {
@@ -274,14 +276,34 @@
         }
 
         function speakToday() {
-            const waste = document.getElementById('waste-text').innerText;
-            let textToSpeak = (waste === translations[currentLang].none) ? 
-                              translations[currentLang].speechNone : 
-                              translations[currentLang].speechPrefix + waste;
+            const now = new Date();
+            const key = `${now.getMonth()}-${now.getDate()}`;
+            const waste = calendar[key] || "Nada hoy";
+            
+            let finalSentence = "";
 
-            const msg = new SpeechSynthesisUtterance(textToSpeak);
+            if (waste === "Nada hoy") {
+                finalSentence = translations[currentLang].speechNone;
+            } else {
+                const types = waste.split(' / ');
+                // Convertimos los tipos técnicos en palabras naturales para la voz
+                const naturalTypes = types.map(t => themeMap[t].voice[currentLang]);
+                
+                let wasteListText = "";
+                if (naturalTypes.length === 1) {
+                    wasteListText = naturalTypes[0];
+                } else {
+                    // Si hay varios, une con "y" o "e" (para italiano)
+                    const last = naturalTypes.pop();
+                    wasteListText = naturalTypes.join(', ') + translations[currentLang].and + last;
+                }
+                
+                finalSentence = translations[currentLang].speechPrefix + wasteListText + ".";
+            }
+
+            const msg = new SpeechSynthesisUtterance(finalSentence);
             msg.lang = currentLang === 'es' ? 'es-ES' : 'it-IT';
-            msg.rate = 0.85;
+            msg.rate = 0.9;
             window.speechSynthesis.speak(msg);
         }
     </script>
