@@ -10,7 +10,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* Tipografía de respaldo si no hay internet */
         body { 
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             margin: 0; padding: 0; 
@@ -18,7 +17,6 @@
             background-color: #f3f4f6;
         }
 
-        /* Pantalla de Presentación */
         #intro-screen {
             position: fixed;
             inset: 0;
@@ -27,7 +25,6 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            /* Fondo inspirado en Italia */
             background: linear-gradient(90deg, #008C45 33.3%, #ffffff 33.3%, #ffffff 66.6%, #CD212A 66.6%);
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -42,7 +39,6 @@
             border: 1px solid #f0f0f0;
         }
 
-        /* Botón Dividido */
         .split-button {
             display: flex;
             background: #1f2937;
@@ -67,34 +63,31 @@
         .split-btn-part:active { background: #374151; }
         .divider { width: 2px; background: rgba(255,255,255,0.2); height: 30px; align-self: center; }
 
-        /* Colores de Categorías */
-        .theme-organico { border-top: 15px solid #8B4513 !important; } /* Marrón */
-        .theme-carta { border-top: 15px solid #00008B !important; }    /* Azul Oscuro */
-        .theme-plastica { border-top: 15px solid #FFD700 !important; } /* Amarillo */
-        .theme-indifferenziato { border-top: 15px solid #808080 !important; } /* Gris */
-        .theme-vetro { border-top: 15px solid #008000 !important; }    /* Verde */
+        .theme-organico { border-top: 15px solid #8B4513 !important; } 
+        .theme-carta { border-top: 15px solid #00008B !important; }    
+        .theme-plastica { border-top: 15px solid #FFD700 !important; } 
+        .theme-indifferenziato { border-top: 15px solid #808080 !important; } 
+        .theme-vetro { border-top: 15px solid #008000 !important; }    
         .theme-none { border-top: 15px solid #e5e7eb !important; }
 
         .info-card { 
             width: 100%; max-width: 450px; 
             border-radius: 35px; background: white; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            overflow-y: auto; max-height: 60vh;
+            overflow-y: auto; max-height: 55vh;
         }
 
         .btn-interact:active { transform: scale(0.95); }
-        
-        /* Ocultar pantalla */
         .hide-intro { transform: translateY(-100%); }
     </style>
 </head>
-<body class="flex flex-col items-center justify-start min-h-screen pt-10 px-4">
+<body class="flex flex-col items-center justify-start min-h-screen pt-6 px-4">
 
     <!-- PANTALLA DE PRESENTACIÓN -->
     <div id="intro-screen">
         <div class="welcome-box">
             <h1 class="text-4xl font-black text-gray-800 mb-2">BUTAPP</h1>
-            <p class="text-gray-500 font-medium italic mb-4 text-sm">Benvenuti / Bienvenidos</p>
+            <p class="text-gray-500 font-medium italic mb-4 text-sm">Calendario 2026 - Italia</p>
             
             <div class="split-button">
                 <button onclick="enterApp('es')" class="split-btn-part">Ingresar</button>
@@ -103,36 +96,35 @@
             </div>
         </div>
         
-        <!-- Créditos en color gris oscuro para visibilidad -->
         <div class="absolute bottom-10 text-center text-gray-700">
             <p class="font-bold text-sm">Creador: Sebastian Manduca</p>
             <p class="text-[10px] uppercase tracking-widest font-black opacity-80">Copyright © 2026</p>
         </div>
     </div>
 
-    <!-- CONTENIDO PRINCIPAL (App) -->
-    <header class="text-center mb-8">
+    <!-- CONTENIDO PRINCIPAL -->
+    <header class="text-center mb-4">
         <h1 class="text-5xl font-black text-green-800 tracking-tighter">BUTAPP</h1>
-        <p class="text-[10px] text-green-600 font-bold uppercase tracking-[0.3em]">Eco-Guía Inteligente</p>
+        <div class="inline-block bg-black text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+            Stasera si espone / Esta noche se saca
+        </div>
     </header>
 
-    <div id="main-card" class="info-card p-8 mb-6 border-t-[15px]">
+    <div id="main-card" class="info-card p-8 mb-4 border-t-[15px]">
         <div class="flex flex-col items-center">
             <div id="waste-icon" class="text-6xl mb-4">♻️</div>
-            <h2 id="waste-text" class="text-3xl font-black text-center text-gray-800 uppercase leading-none mb-2">Cargando...</h2>
-            <p id="date-text" class="text-sm font-bold text-gray-400 mb-6"></p>
+            <h2 id="waste-text" class="text-3xl font-black text-center text-gray-800 uppercase leading-none mb-2 tracking-tighter">Cargando...</h2>
+            <p id="date-text" class="text-sm font-bold text-gray-400 mb-6 uppercase tracking-tighter"></p>
         </div>
 
-        <div id="details-container" class="space-y-4">
-            <!-- Detalles dinámicos -->
-        </div>
+        <div id="details-container" class="space-y-4"></div>
     </div>
 
     <!-- Panel de Control Inferior -->
-    <div class="w-full max-w-md bg-white p-6 rounded-[30px] shadow-lg border border-gray-100">
-        <div class="flex items-center justify-between mb-6">
+    <div class="w-full max-w-md bg-white p-5 rounded-[30px] shadow-lg border border-gray-100">
+        <div class="flex items-center justify-between mb-4">
             <div>
-                <p id="label-today" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Hoy es:</p>
+                <p id="label-action" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sacar esta noche:</p>
                 <p id="current-day-label" class="text-lg font-bold text-gray-800">Cargando...</p>
             </div>
             <button onclick="speakToday()" class="btn-interact w-14 h-14 bg-green-700 text-white rounded-2xl flex items-center justify-center shadow-lg">
@@ -151,62 +143,72 @@
 
         const translations = {
             es: { 
-                speechPrefix: "Atención, hoy te toca tirar: ", 
-                speechNone: "Atención, hoy no te toca tirar nada.", 
+                speechPrefix: "Atención Sebastian, esta noche recuerda sacar: ", 
+                speechNone: "Atención, esta noche no tienes que sacar nada.", 
                 none: "Nada hoy",
-                si: "QUÉ TIRAR 👍",
-                no: "NO TIRAR ❌",
-                labelToday: "Calendario de Hoy",
+                si: "QUÉ INCLUYE 👍",
+                no: "NO INCLUYE ❌",
+                labelAction: "Sacar esta noche:",
                 and: " y "
             },
             it: { 
-                speechPrefix: "Attenzione, oggi devi buttare: ", 
-                speechNone: "Attenzione, oggi non devi buttare niente.", 
-                none: "Niente oggi",
-                si: "COSA BUTTARE 👍",
-                no: "NON BUTTARE ❌",
-                labelToday: "Calendario di Oggi",
+                speechPrefix: "Attenzione Sebastian, stasera ricordati di esporre: ", 
+                speechNone: "Attenzione, stasera non devi esporre niente.", 
+                none: "Niente stasera",
+                si: "COSA METTERE 👍",
+                no: "COSA NON METTERE ❌",
+                labelAction: "Esporre stasera:",
                 and: " e "
             }
         };
 
         const themeMap = {
-            "Organico": { class: "theme-organico", icon: "🟤", color: "#8B4513", voice: {es: "orgánico", it: "organico"} },
-            "Carta": { class: "theme-carta", icon: "🔵", color: "#00008B", voice: {es: "papel y cartón", it: "carta e cartone"} },
-            "Plastica Metalli": { class: "theme-plastica", icon: "🟡", color: "#EAB308", voice: {es: "plástico y metales", it: "plastica e metalli"} },
-            "Secco Residuo": { class: "theme-indifferenziato", icon: "⚪", color: "#808080", voice: {es: "indiferenciado", it: "indifferenziato"} },
-            "Vetro": { class: "theme-vetro", icon: "🟢", color: "#008000", voice: {es: "vidrio", it: "vetro"} },
-            "Nada hoy": { class: "theme-none", icon: "🏠", color: "#9ca3af", voice: {es: "nada", it: "niente"} }
+            "Organico": { class: "theme-organico", icon: "🟤", color: "#8B4513", voice: {es: "el orgánico", it: "l'organico"} },
+            "Carta": { class: "theme-carta", icon: "🔵", color: "#00008B", voice: {es: "el papel y cartón", it: "carta e cartone"} },
+            "Plastica Metalli": { class: "theme-plastica", icon: "🟡", color: "#EAB308", voice: {es: "el plástico y los metales", it: "plastica e metalli"} },
+            "Secco Residuo": { class: "theme-indifferenziato", icon: "⚪", color: "#808080", voice: {es: "el indiferenciado", it: "l'indifferenziato"} },
+            "Vetro": { class: "theme-vetro", icon: "🟢", color: "#008000", voice: {es: "el vidrio", it: "il vetro"} },
+            "Niente stasera": { class: "theme-none", icon: "🏠", color: "#9ca3af", voice: {es: "nada", it: "niente"} }
         };
 
         const detailsData = {
             "Organico": {
-                es: { si: "Restos de comida, cáscaras, café, saquitos de té, flores y servilletas sucias.", no: "Pañales, colillas de cigarro o líquidos." },
-                it: { si: "Avanzi di cibo, bucce, fondi di caffè, tè, fiori e tovaglioli sporchi.", no: "Pannolini, mozziconi di sigaretta o liquidi." }
+                es: { si: "Restos de comida, café, flores y servilletas sucias.", no: "Pañales o colillas." },
+                it: { si: "Avanzi di cibo, fondi di caffè, fiori e tovaglioli sporchi.", no: "Pannolini o mozziconi." }
             },
             "Plastica Metalli": {
-                es: { si: "Botellas, latas, bolsas de plástico, papel aluminio y bandejas de telara.", no: "Juguetes grandes, goma o envases con mucha comida." },
-                it: { si: "Bottiglie, lattine, sacchetti, carta stagnola e vaschette bianche.", no: "Giocattoli, gomma o contenitori sporchi." }
+                es: { si: "Botellas, latas, bolsas y bandejas de telgopor.", no: "Juguetes o envases muy sucios." },
+                it: { si: "Bottiglie, lattine, sacchetti e vaschette.", no: "Giocattoli o contenitori sporchi." }
             },
             "Carta": {
-                es: { si: "Cajas de cartón, periódicos, revistas, bolsas de papel y Tetra Pak.", no: "Tickets de compra, cajas de pizza con grasa o papel mojado." },
-                it: { si: "Scatole di cartone, giornali, riviste, sacchetti di carta e Tetra Pak.", no: "Scontrini, scatole di pizza unte o carta bagnata." }
+                es: { si: "Cajas de cartón, periódicos y Tetra Pak.", no: "Tickets o cajas de pizza con grasa." },
+                it: { si: "Scatole, giornali e Tetra Pak.", no: "Scontrini o scatole di pizza unte." }
             },
             "Secco Residuo": {
-                es: { si: "Tickets, pañales, cepillos de dientes, bolígrafos, colillas y cerámica rota.", no: "Pilas, bombillas o medicinas." },
-                it: { si: "Scontrini, pannolini, spazzolini, penne, mozziconi e ceramica.", no: "Pile, lampadine o medicine." }
+                es: { si: "Tickets, pañales, cepillos y cerámica rota.", no: "Pilas o medicinas." },
+                it: { si: "Scontrini, pannolini, spazzolini e ceramica.", no: "Pile o medicine." }
             },
             "Vetro": {
-                es: { si: "Botellas y frascos de vidrio (¡Sin las tapas!).", no: "Copas de cristal, platos de cerámica o bombillas." },
-                it: { si: "Bottiglie e vasetti di vetro (Senza tappi!).", no: "Cristallo, piatti di ceramica o lampadine." }
+                es: { si: "Botellas y frascos de vidrio sin tapas.", no: "Cristal o cerámica." },
+                it: { si: "Bottiglie e vasetti di vetro.", no: "Cristallo o ceramica." }
             }
         };
 
+        // CALENDARIO 2026 (Mes-Día)
         const calendar = {
-            "0-2": "Secco Residuo / Vetro", "0-3": "Organico", "0-5": "Organico", "0-7": "Carta / Plastica Metalli",
-            "0-8": "Organico", "0-9": "Secco Residuo / Vetro", "0-10": "Organico", "0-12": "Organico",
-            "0-13": "Carta", "0-14": "Plastica Metalli", "0-15": "Organico", "0-16": "Secco Residuo / Vetro",
-            "0-31": "Organico"
+            "0-1": "Secco Residuo / Vetro", 
+            "0-2": "Organico",
+            "0-4": "Organico",
+            "0-6": "Carta / Plastica Metalli",
+            "0-7": "Organico",
+            "0-8": "Secco Residuo / Vetro",
+            "0-9": "Organico",
+            "0-11": "Organico",
+            "0-12": "Carta",
+            "0-13": "Plastica Metalli",
+            "0-14": "Organico",
+            "0-15": "Secco Residuo / Vetro",
+            "0-30": "Organico"
         };
 
         function enterApp(lang) {
@@ -224,18 +226,24 @@
 
         function updateUI() {
             const now = new Date();
-            const key = `${now.getMonth()}-${now.getDate()}`;
-            const waste = calendar[key] || translations[currentLang].none;
+            // Verificamos si ya estamos en 2026 para que el calendario funcione
+            const is2026 = now.getFullYear() >= 2026;
+            
+            let waste = translations[currentLang].none;
+            
+            if (is2026) {
+                const key = `${now.getMonth()}-${now.getDate()}`;
+                waste = calendar[key] || translations[currentLang].none;
+            }
             
             const card = document.getElementById('main-card');
             const wasteText = document.getElementById('waste-text');
             const iconBox = document.getElementById('waste-icon');
             
-            // Reset temas
-            card.className = "info-card p-8 mb-6 border-t-[15px]";
+            card.className = "info-card p-8 mb-4 border-t-[15px]";
             
             const mainType = waste.split(' / ')[0];
-            const theme = themeMap[mainType] || themeMap["Nada hoy"];
+            const theme = themeMap[mainType] || themeMap["Niente stasera"];
             
             card.classList.add(theme.class);
             iconBox.innerText = theme.icon;
@@ -244,7 +252,7 @@
             
             document.getElementById('date-text').innerText = now.toLocaleDateString(currentLang === 'es' ? 'es-ES' : 'it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
             document.getElementById('current-day-label').innerText = now.toLocaleDateString(currentLang === 'es' ? 'es-ES' : 'it-IT', { weekday: 'long' });
-            document.getElementById('label-today').innerText = translations[currentLang].labelToday;
+            document.getElementById('label-action').innerText = translations[currentLang].labelAction;
 
             renderDetails(waste);
         }
@@ -254,7 +262,7 @@
             container.innerHTML = "";
 
             if (wasteType === translations[currentLang].none) {
-                container.innerHTML = `<p class="text-center text-gray-400 font-bold py-10 uppercase tracking-widest">Oggi riposo / Día libre</p>`;
+                container.innerHTML = `<p class="text-center text-gray-400 font-bold py-10 uppercase tracking-widest">Nessuna esposizione / Sin sacos hoy</p>`;
                 return;
             }
 
@@ -264,11 +272,11 @@
                 if (data) {
                     container.innerHTML += `
                         <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                            <h4 class="font-black text-[10px] uppercase text-gray-400 mb-2">${type}</h4>
+                            <h4 class="font-black text-[10px] uppercase text-gray-400 mb-1">${type}</h4>
                             <p class="text-[10px] font-black text-green-600 mb-1">${translations[currentLang].si}</p>
-                            <p class="text-xs text-gray-700 font-bold leading-tight mb-3">${data.si}</p>
+                            <p class="text-[11px] text-gray-700 font-bold leading-tight mb-2">${data.si}</p>
                             <p class="text-[10px] font-black text-red-500 mb-1">${translations[currentLang].no}</p>
-                            <p class="text-xs text-gray-700 font-bold leading-tight">${data.no}</p>
+                            <p class="text-[11px] text-gray-700 font-bold leading-tight">${data.no}</p>
                         </div>
                     `;
                 }
@@ -277,23 +285,26 @@
 
         function speakToday() {
             const now = new Date();
-            const key = `${now.getMonth()}-${now.getDate()}`;
-            const waste = calendar[key] || "Nada hoy";
+            const is2026 = now.getFullYear() >= 2026;
+            let waste = "Niente stasera";
+            
+            if (is2026) {
+                const key = `${now.getMonth()}-${now.getDate()}`;
+                waste = calendar[key] || "Niente stasera";
+            }
             
             let finalSentence = "";
 
-            if (waste === "Nada hoy") {
+            if (waste === "Niente stasera" || waste === translations[currentLang].none) {
                 finalSentence = translations[currentLang].speechNone;
             } else {
                 const types = waste.split(' / ');
-                // Convertimos los tipos técnicos en palabras naturales para la voz
                 const naturalTypes = types.map(t => themeMap[t].voice[currentLang]);
                 
                 let wasteListText = "";
                 if (naturalTypes.length === 1) {
                     wasteListText = naturalTypes[0];
                 } else {
-                    // Si hay varios, une con "y" o "e" (para italiano)
                     const last = naturalTypes.pop();
                     wasteListText = naturalTypes.join(', ') + translations[currentLang].and + last;
                 }
