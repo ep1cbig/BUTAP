@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BUTAPP - Sebastian Manduca</title>
-    <!-- Web App Manifest para que parezca app nativa -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3299/3299935.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- TensorFlow.js y MobileNet -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@latest"></script>
     
@@ -31,12 +29,10 @@
         <p class="text-[10px] text-green-600 font-bold uppercase tracking-widest">Sebastian Manduca &copy; 2026</p>
     </header>
 
-    <!-- Contenedor de Cámara -->
     <div class="camera-container">
         <video id="video" autoplay playsinline muted></video>
         <div class="overlay"><div class="scan-line"></div></div>
         
-        <!-- Pantalla de Inicio (Permisos) -->
         <div id="setup-layer" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 text-white p-6 text-center z-10">
             <div class="mb-4 bg-green-600 p-4 rounded-full shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
@@ -48,26 +44,23 @@
             </button>
         </div>
 
-        <!-- Pantalla de Carga de IA -->
         <div id="loading-model" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 text-white text-sm px-6 text-center hidden z-20">
             <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
             <p class="font-semibold">Cargando IA Ambiental...</p>
         </div>
 
-        <!-- Caja de Predicción -->
         <div id="prediction-box" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md px-6 py-3 rounded-2xl shadow-2xl text-center min-w-[220px] hidden border border-green-100 z-30">
             <p id="prediction-text" class="text-xl font-black text-gray-800 uppercase">Analizando...</p>
         </div>
     </div>
 
-    <!-- Calendario e Información -->
     <div class="w-full max-w-md bg-white p-6 rounded-[32px] shadow-xl border border-green-50">
         <div class="flex justify-between items-center mb-4">
             <div>
                 <h2 id="title-calendar" class="text-xl font-black text-gray-800">Calendario Hoy</h2>
                 <p id="date-text" class="text-[10px] text-green-600 font-bold uppercase tracking-widest"></p>
             </div>
-            <button onclick="speakToday()" class="w-12 h-12 bg-green-600 rounded-2xl flex items-center justify-center active:scale-90 shadow-lg shadow-green-100 transition-colors hover:bg-green-700">
+            <button onclick="speakToday()" class="w-12 h-12 bg-green-600 rounded-2xl flex items-center justify-center active:scale-90 shadow-lg transition-colors hover:bg-green-700">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
             </button>
         </div>
@@ -76,7 +69,6 @@
             <p id="waste-text" class="text-2xl font-black text-green-900 leading-tight tracking-tight">Cargando fecha...</p>
         </div>
         
-        <!-- Selector de Idioma -->
         <div class="mt-6 flex gap-3">
             <button onclick="setLanguage('es')" id="btn-es" class="flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border transition-all duration-300">Español</button>
             <button onclick="setLanguage('it')" id="btn-it" class="flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border transition-all duration-300">Italiano</button>
@@ -89,16 +81,15 @@
         const video = document.getElementById('video');
 
         const translations = {
-            es: { today: "Hoy se tira:", speechPrefix: "Atención. Hoy te toca tirar ", none: "Nada hoy", scanning: "Escaneando..." },
-            it: { today: "Oggi si butta:", speechPrefix: "Attenzione. Oggi devi buttare ", none: "Niente oggi", scanning: "Analisi..." }
+            es: { today: "Hoy se tira:", speechPrefix: "Atención, hoy te toca tirar ", speechNone: "Atención, hoy no se tira nada.", none: "Nada hoy", scanning: "Escaneando..." },
+            it: { today: "Oggi si butta:", speechPrefix: "Attenzione, oggi devi buttare ", speechNone: "Attenzione, oggi non si butta niente.", none: "Niente oggi", scanning: "Analisi..." }
         };
 
         const calendar = {
-            // Basado en tu lista
             "0-2": "Secco Residuo / Vetro", "0-3": "Organico", "0-5": "Organico", "0-7": "Carta / Plastica Metalli",
             "0-8": "Organico", "0-9": "Secco Residuo / Vetro", "0-10": "Organico", "0-12": "Organico",
             "0-13": "Carta", "0-14": "Plastica Metalli", "0-15": "Organico", "0-16": "Secco Residuo / Vetro",
-            "0-31": "Organico" // Hoy 31 de Dic
+            "0-31": "Organico"
         };
 
         const wasteMappingIA = {
@@ -112,24 +103,20 @@
             document.getElementById('loading-model').classList.remove('hidden');
             
             try {
-                const constraints = {
-                    video: { facingMode: { exact: "environment" } }, // Intenta cámara trasera obligatoria
-                    audio: false
-                };
-                
-                // Si falla la trasera obligatoria, cae a la trasera preferida
-                let stream;
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia(constraints);
-                } catch(e) {
-                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                }
-                
+                // Versión flexible de constraints para evitar el error de "NotReadableError"
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: "environment",
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    },
+                    audio: false 
+                });
                 video.srcObject = stream;
                 await loadAI();
             } catch (err) {
-                console.error(err);
-                alert("Error de cámara: Asegúrate de estar en HTTPS y permitir el acceso en Ajustes > Safari/Chrome.");
+                console.error("Error detallado:", err);
+                alert("Error de cámara: Por favor, asegúrate de estar usando HTTPS y de haber cerrado otras apps que usen la cámara.");
                 document.getElementById('setup-layer').classList.remove('hidden');
                 document.getElementById('loading-model').classList.add('hidden');
             }
@@ -152,12 +139,8 @@
                 if (predictions.length > 0) {
                     const top = predictions[0].className.toLowerCase();
                     let found = translations[currentLang].scanning;
-                    
                     for (let key in wasteMappingIA) {
-                        if (top.includes(key)) { 
-                            found = wasteMappingIA[key]; 
-                            break; 
-                        }
+                        if (top.includes(key)) { found = wasteMappingIA[key]; break; }
                     }
                     document.getElementById('prediction-text').innerText = found;
                 }
@@ -181,16 +164,22 @@
         }
 
         function speakToday() {
-            const text = translations[currentLang].speechPrefix + document.getElementById('waste-text').innerText;
-            const msg = new SpeechSynthesisUtterance(text);
+            const waste = document.getElementById('waste-text').innerText;
+            let textToSpeak = "";
+
+            if (waste === translations[currentLang].none) {
+                textToSpeak = translations[currentLang].speechNone;
+            } else {
+                textToSpeak = translations[currentLang].speechPrefix + waste;
+            }
+
+            const msg = new SpeechSynthesisUtterance(textToSpeak);
             msg.lang = currentLang === 'es' ? 'es-ES' : 'it-IT';
+            msg.rate = 0.9; // Un poco más lento para que se entienda bien
             window.speechSynthesis.speak(msg);
         }
 
-        // Iniciar interfaz
-        window.onload = () => {
-            setLanguage('es');
-        };
+        window.onload = () => setLanguage('es');
     </script>
 </body>
 </html>
