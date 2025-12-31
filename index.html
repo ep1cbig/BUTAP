@@ -9,80 +9,146 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3299/3299935.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@latest"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; margin: 0; padding: 0; overflow-x: hidden; }
-        .camera-container { position: relative; width: 100%; max-width: 500px; aspect-ratio: 3/4; overflow: hidden; border-radius: 24px; background: #000; margin-bottom: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; border: 2px solid rgba(255,255,255,0.1); border-radius: 24px; }
-        .scan-line { position: absolute; width: 100%; height: 2px; background: #22c55e; top: 0; animation: scan 3s linear infinite; box-shadow: 0 0 15px #22c55e; }
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+        
+        body { 
+            font-family: 'Fredoka', sans-serif; 
+            background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
+            min-height: 100vh;
+            margin: 0; padding: 0; 
+        }
+
+        .info-card { 
+            width: 100%; 
+            max-width: 450px; 
+            border-radius: 40px; 
+            background: #ffffff; 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .waste-icon-bg {
+            width: 80px; height: 80px;
+            border-radius: 25px;
+            display: flex; items-center; justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 40px;
+        }
+
+        /* Animaciones */
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        /* Colores dinámicos por tipo */
+        .theme-organico { border-top: 12px solid #8b5e3c; }
+        .theme-plastica { border-top: 12px solid #3b82f6; }
+        .theme-carta { border-top: 12px solid #f59e0b; }
+        .theme-vetro { border-top: 12px solid #10b981; }
+        .theme-secco { border-top: 12px solid #6b7280; }
+        .theme-none { border-top: 12px solid #e5e7eb; }
+
+        .btn-interact:active { transform: scale(0.92); }
     </style>
 </head>
 <body class="p-4 flex flex-col items-center">
 
     <header class="text-center mb-6">
-        <h1 class="text-4xl font-extrabold text-green-700 tracking-tighter">BUTAPP</h1>
-        <p class="text-[10px] text-green-600 font-bold uppercase tracking-widest">Sebastian Manduca &copy; 2026</p>
+        <h1 class="text-5xl font-bold text-green-700 tracking-tight">BUTAPP</h1>
+        <p class="text-xs text-green-600 font-semibold uppercase tracking-widest mt-1">Sebastian Manduca • Eco-Guía</p>
     </header>
 
-    <div class="camera-container">
-        <video id="video" autoplay playsinline muted></video>
-        <div class="overlay"><div class="scan-line"></div></div>
+    <!-- Tarjeta Principal Interactiva -->
+    <div id="main-card" class="info-card p-8 animate-pop mb-6">
+        <div id="waste-icon" class="waste-icon-bg shadow-inner">♻️</div>
         
-        <div id="setup-layer" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 text-white p-6 text-center z-10">
-            <div class="mb-4 bg-green-600 p-4 rounded-full shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-            </div>
-            <p class="font-bold text-lg mb-2">Activación Necesaria</p>
-            <p class="text-sm text-gray-400 mb-6 px-4">Toca el botón para iniciar la detección inteligente de residuos.</p>
-            <button onclick="startCamera()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-2xl transition-all active:scale-95 shadow-xl">
-                ABRIR CÁMARA
-            </button>
+        <div class="text-center mb-6">
+            <h2 id="waste-text" class="text-3xl font-bold text-gray-800 leading-tight">Cargando...</h2>
+            <p id="date-text" class="text-sm text-green-600 font-medium mt-1"></p>
         </div>
 
-        <div id="loading-model" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 text-white text-sm px-6 text-center hidden z-20">
-            <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p class="font-semibold">Cargando IA Ambiental...</p>
-        </div>
-
-        <div id="prediction-box" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md px-6 py-3 rounded-2xl shadow-2xl text-center min-w-[220px] hidden border border-green-100 z-30">
-            <p id="prediction-text" class="text-xl font-black text-gray-800 uppercase">Analizando...</p>
+        <div id="details-container" class="space-y-6">
+            <!-- Contenido dinámico -->
         </div>
     </div>
 
-    <div class="w-full max-w-md bg-white p-6 rounded-[32px] shadow-xl border border-green-50">
-        <div class="flex justify-between items-center mb-4">
-            <div>
-                <h2 id="title-calendar" class="text-xl font-black text-gray-800">Calendario Hoy</h2>
-                <p id="date-text" class="text-[10px] text-green-600 font-bold uppercase tracking-widest"></p>
-            </div>
-            <button onclick="speakToday()" class="w-12 h-12 bg-green-600 rounded-2xl flex items-center justify-center active:scale-90 shadow-lg transition-colors hover:bg-green-700">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+    <!-- Panel de Control Inferior -->
+    <div class="w-full max-w-md bg-white/80 backdrop-blur-md p-6 rounded-[35px] shadow-lg border border-white flex flex-col items-center">
+        <div class="flex items-center justify-between w-full mb-4">
+            <p id="label-today" class="text-gray-500 font-bold uppercase text-xs tracking-widest">Hoy toca:</p>
+            <button onclick="speakToday()" class="btn-interact w-14 h-14 bg-green-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-green-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
             </button>
         </div>
-        
-        <div class="p-5 bg-green-50 rounded-2xl border-2 border-dashed border-green-200 text-center">
-            <p id="waste-text" class="text-2xl font-black text-green-900 leading-tight tracking-tight">Cargando fecha...</p>
-        </div>
-        
-        <div class="mt-6 flex gap-3">
-            <button onclick="setLanguage('es')" id="btn-es" class="flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border transition-all duration-300">Español</button>
-            <button onclick="setLanguage('it')" id="btn-it" class="flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border transition-all duration-300">Italiano</button>
+
+        <div class="flex gap-3 w-full">
+            <button onclick="setLanguage('es')" id="btn-es" class="btn-interact flex-1 py-3 rounded-2xl font-bold transition-all border-2">ESPAÑOL</button>
+            <button onclick="setLanguage('it')" id="btn-it" class="btn-interact flex-1 py-3 rounded-2xl font-bold transition-all border-2">ITALIANO</button>
         </div>
     </div>
 
     <script>
         let currentLang = 'es';
-        let model = null;
-        const video = document.getElementById('video');
 
         const translations = {
-            es: { today: "Hoy se tira:", speechPrefix: "Atención, hoy te toca tirar ", speechNone: "Atención, hoy no se tira nada.", none: "Nada hoy", scanning: "Escaneando..." },
-            it: { today: "Oggi si butta:", speechPrefix: "Attenzione, oggi devi buttare ", speechNone: "Attenzione, oggi non si butta niente.", none: "Niente oggi", scanning: "Analisi..." }
+            es: { 
+                today: "Hoy se tira:", 
+                speechPrefix: "¡Hola! Hoy te toca sacar ", 
+                speechNone: "Hoy es día de descanso, no se tira nada.", 
+                none: "Nada hoy",
+                si: "SÍ SE TIRA 👍",
+                no: "NO SE TIRA ❌",
+                empty: "¡Libre! No hay recolección hoy.",
+                labelToday: "Calendario de Hoy"
+            },
+            it: { 
+                today: "Oggi si butta:", 
+                speechPrefix: "Ciao! Oggi devi buttare ", 
+                speechNone: "Oggi riposo, non si butta niente.", 
+                none: "Niente oggi",
+                si: "COSA BUTTARE 👍",
+                no: "NON BUTTARE ❌",
+                empty: "Libero! Niente raccolta oggi.",
+                labelToday: "Calendario di Oggi"
+            }
+        };
+
+        const wasteThemes = {
+            "Organico": { icon: "🍎", class: "theme-organico", color: "#8b5e3c", bg: "#fdf5f0" },
+            "Plastica Metalli": { icon: "🥤", class: "theme-plastica", color: "#3b82f6", bg: "#eff6ff" },
+            "Carta": { icon: "📦", class: "theme-carta", color: "#f59e0b", bg: "#fffbeb" },
+            "Secco Residuo": { icon: "🧸", class: "theme-secco", color: "#4b5563", bg: "#f9fafb" },
+            "Vetro": { icon: "🍾", class: "theme-vetro", color: "#10b981", bg: "#f0fdf4" },
+            "Nada hoy": { icon: "🏡", class: "theme-none", color: "#9ca3af", bg: "#f3f4f6" }
+        };
+
+        const detailsData = {
+            "Organico": {
+                es: { si: "Restos de comida, cáscaras, café, saquitos de té, flores y servilletas sucias.", no: "Pañales, colillas de cigarro o líquidos." },
+                it: { si: "Avanzi di cibo, bucce, fondi di caffè, tè, fiori e tovaglioli sporchi.", no: "Pannolini, mozziconi di sigaretta o liquidi." }
+            },
+            "Plastica Metalli": {
+                es: { si: "Botellas, latas, bolsas de plástico, papel aluminio y bandejas blancas.", no: "Juguetes, goma o envases con mucha comida." },
+                it: { si: "Bottiglie, lattine, sacchetti, carta stagnola e vaschette bianche.", no: "Giocattoli, gomma o contenitori molto sporchi." }
+            },
+            "Carta": {
+                es: { si: "Cajas de cartón, periódicos, revistas, bolsas de papel y cajas de leche.", no: "Tickets de compra, cajas de pizza con grasa o papel mojado." },
+                it: { si: "Scatole di cartone, giornali, riviste, sacchetti di carta e Tetra Pak.", no: "Scontrini, scatole di pizza unte o carta bagnata." }
+            },
+            "Secco Residuo": {
+                es: { si: "Pañales, cepillos de dientes, bolígrafos, colillas y espejos rotos.", no: "Pilas, bombillas o medicinas." },
+                it: { si: "Pannolini, spazzolini, penne, mozziconi e specchi rotti.", no: "Pile, lampadine o medicine." }
+            },
+            "Vetro": {
+                es: { si: "Botellas y frascos de vidrio (¡Sin las tapas!).", no: "Copas de cristal, platos de cerámica o bombillas." },
+                it: { si: "Bottiglie e vasetti di vetro (Senza tappi!).", no: "Cristallo, piatti di ceramica o lampadine." }
+            }
         };
 
         const calendar = {
@@ -92,75 +158,77 @@
             "0-31": "Organico"
         };
 
-        const wasteMappingIA = {
-            "bottle": "Plastica / Vetro", "water bottle": "Plastica", "wine bottle": "Vetro",
-            "cup": "Plastica", "paper": "Carta", "cardboard": "Carta", "can": "Metalli", 
-            "orange": "Organico", "banana": "Organico", "apple": "Organico", "food": "Organico"
-        };
-
-        async function startCamera() {
-            document.getElementById('setup-layer').classList.add('hidden');
-            document.getElementById('loading-model').classList.remove('hidden');
-            
-            try {
-                // Versión flexible de constraints para evitar el error de "NotReadableError"
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: "environment",
-                        width: { ideal: 640 },
-                        height: { ideal: 480 }
-                    },
-                    audio: false 
-                });
-                video.srcObject = stream;
-                await loadAI();
-            } catch (err) {
-                console.error("Error detallado:", err);
-                alert("Error de cámara: Por favor, asegúrate de estar usando HTTPS y de haber cerrado otras apps que usen la cámara.");
-                document.getElementById('setup-layer').classList.remove('hidden');
-                document.getElementById('loading-model').classList.add('hidden');
-            }
-        }
-
-        async function loadAI() {
-            try {
-                model = await mobilenet.load();
-                document.getElementById('loading-model').classList.add('hidden');
-                document.getElementById('prediction-box').classList.remove('hidden');
-                detect();
-            } catch (e) {
-                alert("Error cargando el modelo de IA.");
-            }
-        }
-
-        async function detect() {
-            if (model && video.readyState === 4) {
-                const predictions = await model.classify(video);
-                if (predictions.length > 0) {
-                    const top = predictions[0].className.toLowerCase();
-                    let found = translations[currentLang].scanning;
-                    for (let key in wasteMappingIA) {
-                        if (top.includes(key)) { found = wasteMappingIA[key]; break; }
-                    }
-                    document.getElementById('prediction-text').innerText = found;
-                }
-            }
-            requestAnimationFrame(detect);
-        }
-
         function setLanguage(lang) {
             currentLang = lang;
-            document.getElementById('btn-es').className = `flex-1 py-3 rounded-xl text-xs font-black border transition-all ${lang === 'es' ? 'bg-green-600 text-white shadow-lg' : 'bg-white text-green-700'}`;
-            document.getElementById('btn-it').className = `flex-1 py-3 rounded-xl text-xs font-black border transition-all ${lang === 'it' ? 'bg-green-600 text-white shadow-lg' : 'bg-white text-green-700'}`;
+            document.getElementById('btn-es').className = `btn-interact flex-1 py-3 rounded-2xl font-bold border-2 transition-all ${lang === 'es' ? 'bg-green-600 text-white border-green-600' : 'bg-white text-green-700 border-green-100'}`;
+            document.getElementById('btn-it').className = `btn-interact flex-1 py-3 rounded-2xl font-bold border-2 transition-all ${lang === 'it' ? 'bg-green-600 text-white border-green-600' : 'bg-white text-green-700 border-green-100'}`;
             updateUI();
         }
 
         function updateUI() {
             const now = new Date();
             const key = `${now.getMonth()}-${now.getDate()}`;
-            document.getElementById('waste-text').innerText = calendar[key] || translations[currentLang].none;
+            const waste = calendar[key] || translations[currentLang].none;
+            
+            const card = document.getElementById('main-card');
+            const iconBox = document.getElementById('waste-icon');
+            const wasteText = document.getElementById('waste-text');
+            const detailsBox = document.getElementById('details-container');
+            
+            // Reset clases de tema
+            card.className = "info-card p-8 animate-pop mb-6";
+            
+            // Aplicar Tema Visual
+            const mainType = waste.split(' / ')[0];
+            const theme = wasteThemes[mainType] || wasteThemes["Nada hoy"];
+            card.classList.add(theme.class);
+            iconBox.innerText = theme.icon;
+            iconBox.style.backgroundColor = theme.bg;
+            iconBox.style.color = theme.color;
+            
+            wasteText.innerText = waste;
+            wasteText.style.color = theme.color === "#9ca3af" ? "#374151" : theme.color;
+            
             document.getElementById('date-text').innerText = now.toLocaleDateString(currentLang === 'es' ? 'es-ES' : 'it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
-            document.getElementById('title-calendar').innerText = translations[currentLang].today;
+            document.getElementById('label-today').innerText = translations[currentLang].labelToday;
+
+            renderDetails(waste);
+        }
+
+        function renderDetails(wasteType) {
+            const container = document.getElementById('details-container');
+            container.innerHTML = "";
+
+            if (wasteType === translations[currentLang].none) {
+                container.innerHTML = `<p class="text-center text-gray-400 font-medium py-10">${translations[currentLang].empty}</p>`;
+                return;
+            }
+
+            const types = wasteType.split(' / ');
+            types.forEach(type => {
+                const data = detailsData[type] ? detailsData[type][currentLang] : null;
+                if (data) {
+                    container.innerHTML += `
+                        <div class="bg-gray-50 p-5 rounded-3xl border border-gray-100">
+                            <h4 class="font-bold text-gray-400 text-[10px] uppercase tracking-widest mb-3">${type}</h4>
+                            <div class="flex gap-4 mb-4">
+                                <div class="text-xl">✅</div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-green-600 uppercase mb-1">${translations[currentLang].si}</p>
+                                    <p class="text-sm text-gray-700 leading-tight">${data.si}</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="text-xl">❌</div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-red-500 uppercase mb-1">${translations[currentLang].no}</p>
+                                    <p class="text-sm text-gray-700 leading-tight">${data.no}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
         }
 
         function speakToday() {
@@ -175,7 +243,8 @@
 
             const msg = new SpeechSynthesisUtterance(textToSpeak);
             msg.lang = currentLang === 'es' ? 'es-ES' : 'it-IT';
-            msg.rate = 0.9; // Un poco más lento para que se entienda bien
+            msg.rate = 0.85; // Velocidad amigable para ancianos
+            msg.pitch = 1.1; // Tono ligeramente más alegre
             window.speechSynthesis.speak(msg);
         }
 
